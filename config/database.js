@@ -1,22 +1,20 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-const sequelize = new Sequelize(
-  process.env.MYSQLDATABASE || "tradeshowdb",
-  process.env.MYSQLPASSWORD || "",
-  {
-    user: process.env.MYSQLUSER || "root",
-    host: process.env.MYSQLHOST || "localhost",
-    port: process.env.MYSQLPORT || 3306,
-    dialect: "mysql",
-    logging: false,
-    pool: {
-      max: 10,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-  },
-);
+const sequelize = new Sequelize({
+  database: process.env.MYSQLDATABASE,
+  username: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  host: process.env.MYSQLHOST,
+  port: process.env.MYSQLPORT,
+  dialect: "mysql", // ✅ MUST
+  logging: false,
+});
+
+console.log("DB ENV CHECK:", {
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  database: process.env.MYSQLDATABASE,
+});
 
 module.exports = sequelize;
