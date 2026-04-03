@@ -19,12 +19,10 @@ const PORT = process.env.PORT || 5050;
 // ========================
 // ✅ CORS CONFIG (FIXED)
 // ========================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://tauncharted-client.vercel.app", // ✅ MAIN frontend
-  "https://tauncharted-client-buto89z26-meghana-kuruva-s-projects.vercel.app", // optional preview
-];
+app.use(cors({
+  origin: "https://tauncharted-client.vercel.app",
+  credentials: true
+}));
 
 app.use(
   cors({
