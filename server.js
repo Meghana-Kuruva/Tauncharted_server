@@ -16,19 +16,21 @@ const extractorRoutes = require("./routes/extractorRoutes");
 const app = express();
 const PORT = process.env.PORT || 5050;
 
+//
 // ========================
 // ✅ CORS CONFIG (FIXED)
 // ========================
-app.use(cors({
-  origin: "https://tauncharted-client.vercel.app",
-  credentials: true
-}));
+//
+const allowedOrigins = [
+  "https://tauncharted-client.vercel.app",
+];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
       console.log("🌍 Request from origin:", origin);
 
+      // allow requests with no origin (like Postman)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -36,29 +38,38 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  }),
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
 );
 
+// Handle preflight requests
+app.options("*", cors());
+
+//
 // ========================
 // ✅ BODY PARSER
 // ========================
+//
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+//
 // ========================
 // ✅ ROUTES
 // ========================
+//
 app.use("/api/auth", authRoutes);
 app.use("/api/tradeshows", tradeShowRoutes);
 app.use("/api", exhibitorRoutes);
 app.use("/api", prospectRoutes);
 app.use("/api/extractor", extractorRoutes);
 
+//
 // ========================
 // ✅ TEST ROUTES
 // ========================
+//
 app.get("/", (req, res) => {
   res.send("Backend is running on Render 🚀");
 });
@@ -71,9 +82,11 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+//
 // ========================
 // ✅ START SERVER
 // ========================
+//
 const startServer = async () => {
   try {
     await sequelize.authenticate();
@@ -82,27 +95,27 @@ const startServer = async () => {
     await sequelize.sync();
     console.log("✅ Database tables synced");
 
-    // Seed initial data automatically if empty (for development ease)
+    // Seed data if empty
     const tradeShowCount = await TradeShow.count();
     if (tradeShowCount === 0) {
-      console.log("🧩 No trade shows found, running initial seed data...");
+      console.log("🧩 Seeding trade shows...");
       await seedTradeShows();
     }
 
     const exhibitorCount = await Exhibitor.count();
     if (exhibitorCount === 0) {
-      console.log("🧩 No exhibitors found, running exhibitor seed...");
+      console.log("🧩 Seeding exhibitors...");
       await seedExhibitors();
     }
 
     const prospectCount = await Prospect.count();
     if (prospectCount === 0) {
-      console.log("🧩 No prospects found, running prospect seed...");
+      console.log("🧩 Seeding prospects...");
       await seedProspects();
     }
 
     const server = app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
 
     // Handle port busy issue
@@ -124,6 +137,7 @@ const startServer = async () => {
 
     process.on("SIGTERM", shutdown);
     process.on("SIGINT", shutdown);
+
   } catch (err) {
     console.error("❌ Unable to start server:", err.message);
     process.exit(1);
