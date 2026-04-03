@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { sequelize } = require("./models");
+const { sequelize, TradeShow, Exhibitor, Prospect } = require("./models");
+const { seedTradeShows } = require("./seedTradeShows");
+const { seedExhibitors } = require("./seedExhibitors");
+const { seedProspects } = require("./seedProspects");
 
 const tradeShowRoutes = require("./routes/tradeShowRoutes");
 const exhibitorRoutes = require("./routes/exhibitorRoutes");
@@ -80,6 +83,25 @@ const startServer = async () => {
 
     await sequelize.sync();
     console.log("✅ Database tables synced");
+
+    // Seed initial data automatically if empty (for development ease)
+    const tradeShowCount = await TradeShow.count();
+    if (tradeShowCount === 0) {
+      console.log("🧩 No trade shows found, running initial seed data...");
+      await seedTradeShows();
+    }
+
+    const exhibitorCount = await Exhibitor.count();
+    if (exhibitorCount === 0) {
+      console.log("🧩 No exhibitors found, running exhibitor seed...");
+      await seedExhibitors();
+    }
+
+    const prospectCount = await Prospect.count();
+    if (prospectCount === 0) {
+      console.log("🧩 No prospects found, running prospect seed...");
+      await seedProspects();
+    }
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);

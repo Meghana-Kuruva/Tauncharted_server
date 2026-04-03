@@ -8,6 +8,12 @@ const users = [
     role: "admin",
   },
   {
+    name: "admin",
+    email: "admin@tauncharted.com",
+    password: "admin123",
+    role: "admin",
+  },
+  {
     name: "Hammad",
     email: "hammad@tauncharted.com",
     password: "password123",
